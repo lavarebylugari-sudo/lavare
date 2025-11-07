@@ -1,0 +1,70 @@
+/* LAVARE Pet Salon - Global Styles */
+
+/* Reset and base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Inter', sans-serif;
+  background-color: #FDF8F0; /* Warm Cream */
+  color: #333333;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* Typography */
+h1, h2, h3, h4, .font-display {
+  font-family: 'Playfair Display', serif;
+}
+
+/* Custom animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+/* Utility classes for consistent spacing and colors */
+.text-lavare-gold {
+  color: #D4AF37;
+}
+
+.bg-lavare-cream {
+  background-color: #FDF8F0;
+}
+
+.text-lavare-dark {
+  color: #333333;
+}
+
+/* Button hover effects */
+.btn-lavare {
+  transition: all 0.3s ease;
+}
+
+.btn-lavare:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+}
+
+/* Responsive utilities */
+@media (max-width: 768px) {
+  .font-display {
+    font-size: 1.5rem;
+  }
+}

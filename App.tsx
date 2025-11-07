@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { Page } from './types';
 import Login from './components/Login';
 import Header from './components/Header';
@@ -112,6 +113,7 @@ const App: React.FC = () => {
         {renderCurrentPage()}
       </main>
       {isAboutModalOpen && <AboutLavareModal onClose={toggleAboutModal} />}
+      <SpeedInsights />
     </div>
   );
 };
