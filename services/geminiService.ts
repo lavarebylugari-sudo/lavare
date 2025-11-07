@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const API_KEY = process.env.API_KEY || process.env.GEMINI_API_KEY;
+const API_KEY = process.env.GEMINI_API_KEY || process.env.API_KEY;
 
 if (!API_KEY) {
   console.warn("API_KEY is not set. Using a mock service.");
@@ -24,7 +24,7 @@ export const getGroomingRecommendations = async (imageBase64: string): Promise<s
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "models/gemini-1.5-pro" });
     
     const imagePart = fileToGenerativePart(imageBase64, 'image/jpeg');
     const textPart = "Analyze this image of a pet. Based on its apparent breed, coat type, and condition, recommend specific grooming services from a luxury pet salon. Format the response elegantly with headings and bullet points. Be glamorous and inspiring.";
@@ -45,7 +45,7 @@ export const getRecommendationsFromProfile = async (breed: string, age: string, 
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "models/gemini-1.5-pro" });
     const textPart = `Analyze this pet profile: The breed is ${breed}, age is ${age}, and coat type is ${coatType}. Based on this information, recommend specific grooming services from a luxury pet salon. Format the response elegantly with headings and bullet points. Be glamorous and inspiring.`;
     
     const response = await model.generateContent([textPart]);
