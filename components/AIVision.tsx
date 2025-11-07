@@ -29,6 +29,32 @@ const AIVision: React.FC = () => {
       setError(null);
     }
   };
+
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+  };
+
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    const files = event.dataTransfer.files;
+    if (files.length > 0) {
+      const file = files[0];
+      if (file.type.startsWith('image/')) {
+        setImageFile(file);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImagePreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+        // Reset outputs when new image is selected
+        setRecommendations(null);
+        setTransformedImage(null);
+        setError(null);
+      } else {
+        setError('Please upload an image file (PNG, JPG, GIF)');
+      }
+    }
+  };
   
   const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -175,22 +201,25 @@ const AIVision: React.FC = () => {
                 </div>
             ) : (
                 <div>
-                    <label htmlFor="pet-upload" className="block text-sm font-medium text-gray-700 mb-2">1. Upload a clear photo of your pet</label>
-                    <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                    <label htmlFor="file-upload" className="block text-sm font-medium text-gray-700 mb-2">1. Upload a clear photo of your pet</label>
+                    <div 
+                        className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-[#D4AF37] transition-colors cursor-pointer"
+                        onDragOver={handleDragOver}
+                        onDrop={handleDrop}
+                        onClick={() => document.getElementById('file-upload')?.click()}
+                    >
                         <div className="space-y-1 text-center">
                             <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
                                 <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                             <div className="flex text-sm text-gray-600">
-                                <label htmlFor="file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-[#D4AF37] hover:text-[#b3922e] focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-[#D4AF37]">
-                                    <span>Upload a file</span>
-                                    <input id="file-upload" name="file-upload" type="file" className="sr-only" accept="image/*" onChange={handleFileChange} />
-                                </label>
+                                <span className="font-medium text-[#D4AF37] hover:text-[#b3922e]">Click to upload</span>
                                 <p className="pl-1">or drag and drop</p>
                             </div>
                             <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
                         </div>
                     </div>
+                    <input id="file-upload" name="file-upload" type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
                     {imagePreview && <img src={imagePreview} alt="Pet preview" className="mt-4 rounded-lg shadow-sm max-h-60 mx-auto"/>}
                 </div>
             )}
