@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GoogleAuth } from '../services/authService';
+import { SessionManager } from '../services/sessionService';
 
 interface LoginProps {
   onLogin: () => void;
@@ -9,6 +10,13 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [lastUser, setLastUser] = useState<any>(null);
+
+  // Check if there was a previous user (for quick login)
+  useEffect(() => {
+    const lastUser = SessionManager.getLastUser();
+    setLastUser(lastUser);
+  }, []);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,6 +31,14 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const handleGoogleLogin = () => {
     const googleAuth = new GoogleAuth();
     googleAuth.signIn();
+  };
+
+  const handleQuickLogin = () => {
+    if (lastUser) {
+      // Create a new session for the last user
+      SessionManager.saveSession(lastUser);
+      onLogin();
+    }
   };
 
   return (
@@ -51,6 +67,31 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             <span>Innovation</span>
           </div>
         </div>
+
+        {/* Quick Login for Returning Users */}
+        {lastUser && (
+          <div className="mb-4 p-4 bg-[#D4AF37] bg-opacity-10 rounded-lg border border-[#D4AF37] border-opacity-20">
+            <p className="text-sm text-[#333333] mb-2 font-medium">Welcome back!</p>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <img 
+                  src={lastUser.picture || '/default-avatar.png'} 
+                  alt="Profile" 
+                  className="w-8 h-8 rounded-full mr-2 border-2 border-[#D4AF37]"
+                />
+                <span className="text-sm font-medium text-[#333333]">
+                  {lastUser.name || lastUser.email}
+                </span>
+              </div>
+              <button
+                onClick={handleQuickLogin}
+                className="px-4 py-2 bg-[#D4AF37] text-white rounded-lg hover:bg-[#333333] transition-all duration-300 text-sm font-medium"
+              >
+                Continue
+              </button>
+            </div>
+          </div>
+        )}
         <form className="mt-8 space-y-6" onSubmit={handleLogin}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>

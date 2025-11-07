@@ -10,6 +10,7 @@ import AIVision from './components/AIVision';
 import AuthCallback from './components/AuthCallback';
 import { LAVARE_MEANING } from './constants';
 import { GoogleUser } from './services/authService';
+import { SessionManager } from './services/sessionService';
 
 const AboutLavareModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   return (
@@ -67,17 +68,41 @@ const App: React.FC = () => {
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
   const [user, setUser] = useState<GoogleUser | null>(null);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   // Check if we're on the OAuth callback route
   const isAuthCallback = window.location.pathname === '/auth/callback';
 
+  // Check for existing session on app load
+  useEffect(() => {
+    const checkExistingSession = () => {
+      const existingSession = SessionManager.getSession();
+      if (existingSession) {
+        setUser(existingSession.user);
+        setIsLoggedIn(true);
+        // Refresh session activity
+        SessionManager.refreshSession();
+      }
+      setIsCheckingAuth(false);
+    };
+
+    if (!isAuthCallback) {
+      checkExistingSession();
+    } else {
+      setIsCheckingAuth(false);
+    }
+  }, [isAuthCallback]);
+
   const handleLogin = useCallback(() => setIsLoggedIn(true), []);
+  
   const handleLogout = useCallback(() => {
     setIsLoggedIn(false);
     setUser(null);
+    SessionManager.clearSession();
     // Redirect to home after logout
     window.history.pushState({}, '', '/');
   }, []);
+  
   const handleNavigate = useCallback((page: Page) => setCurrentPage(page), []);
   const toggleAboutModal = useCallback(() => setIsAboutModalOpen(prev => !prev), []);
 
@@ -85,6 +110,8 @@ const App: React.FC = () => {
     setUser(userData);
     setIsLoggedIn(true);
     setAuthError(null);
+    // Save session
+    SessionManager.saveSession(userData);
     // Redirect to dashboard after successful auth
     window.history.pushState({}, '', '/');
   }, []);
@@ -93,12 +120,28 @@ const App: React.FC = () => {
     setAuthError(error);
     setIsLoggedIn(false);
     setUser(null);
+    SessionManager.clearSession();
     // Redirect to login page on error
     setTimeout(() => {
       window.history.pushState({}, '', '/');
       setAuthError(null);
     }, 3000);
   }, []);
+
+  // Show loading while checking authentication
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#FDF8F0]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#D4AF37] mx-auto mb-4"></div>
+          <h2 className="font-display text-2xl text-[#333333] mb-2">LAVARE</h2>
+          <p className="text-xs text-[#666666] italic font-light">
+            "to wash" • "to bathe" • Italian
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   // Handle OAuth callback
   if (isAuthCallback) {
