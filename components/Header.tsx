@@ -15,9 +15,14 @@ const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate, onLogout, onAb
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           <div className="flex items-center">
-            <h1 className="font-display text-3xl text-[#333333] cursor-pointer" onClick={() => onNavigate(Page.Dashboard)}>
-              LAVARE
-            </h1>
+            <div className="cursor-pointer" onClick={() => onNavigate(Page.Dashboard)}>
+              <h1 className="font-display text-3xl text-[#333333]">
+                LAVARE
+              </h1>
+              <p className="text-xs text-[#666666] italic font-light -mt-1">
+                "to wash" • "to bathe" • Italian
+              </p>
+            </div>
           </div>
           <nav className="hidden md:flex items-center space-x-6">
             {NAV_ITEMS.map(item => (

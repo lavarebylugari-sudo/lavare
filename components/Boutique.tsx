@@ -25,7 +25,12 @@ const Boutique: React.FC = () => {
   return (
     <div className="container mx-auto">
       <div className="text-center mb-12">
-        <h2 className="font-display text-5xl">The LAVARE Boutique</h2>
+        <div>
+          <h2 className="font-display text-5xl">The LAVARE Boutique</h2>
+          <p className="text-xs text-[#666666] italic font-light -mt-1">
+            "to wash" • "to bathe" • Italian
+          </p>
+        </div>
         <p className="mt-2 text-lg text-gray-600">A curated collection of luxury goods for the distinguished pet.</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

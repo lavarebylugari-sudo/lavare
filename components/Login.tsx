@@ -27,6 +27,9 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           <h1 className="font-display text-5xl font-bold text-[#333333]">
             LAVARE
           </h1>
+          <p className="text-xs text-[#666666] italic font-light -mt-1">
+            "to wash" • "to bathe" • Italian
+          </p>
           <p className="mt-2 text-gray-600">Client Privé Portal</p>
           <div className="mt-6 flex flex-wrap justify-center items-center text-xs text-gray-500 tracking-wider uppercase">
             <span>Lugari</span>
