@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const API_KEY = process.env.API_KEY || process.env.GEMINI_API_KEY;
 
@@ -6,7 +6,7 @@ if (!API_KEY) {
   console.warn("API_KEY is not set. Using a mock service.");
 }
 
-const genAI = API_KEY ? new GoogleGenAI(API_KEY) : null;
+const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
 
 // Helper function to convert image file to a Gemini-compatible format
 const fileToGenerativePart = (base64Data: string, mimeType: string) => {
@@ -20,42 +20,41 @@ const fileToGenerativePart = (base64Data: string, mimeType: string) => {
 
 export const getGroomingRecommendations = async (imageBase64: string): Promise<string> => {
   if (!genAI) {
-    return new Promise(resolve => setTimeout(() => resolve("This is a mock response because the API key is not configured.\n\n**Recommended Services:**\n* **Fluff & Dry:** To enhance volume.\n* **Pawdicure:** For neat and tidy paws."), 1000));
+    return new Promise(resolve => setTimeout(() => resolve("**LAVARE Grooming Recommendations** 🐾\n\n*AI recommendations are currently unavailable, but here are our signature services:*\n\n• **The Royal Treatment** - Full spa day with luxury shampoo, blow-dry, and styling\n• **Pawdicure Perfection** - Nail trimming, paw massage, and moisturizing treatment\n• **Fluff & Fabulous** - Professional grooming to enhance your pet's natural beauty\n• **Coat Conditioning** - Deep conditioning treatment for silky, healthy fur"), 1000));
   }
 
   try {
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    
     const imagePart = fileToGenerativePart(imageBase64, 'image/jpeg');
-    const textPart = { text: "Analyze this image of a pet. Based on its apparent breed, coat type, and condition, recommend specific grooming services from a luxury pet salon. Format the response elegantly with headings and bullet points. Be glamorous and inspiring." };
+    const textPart = "Analyze this image of a pet. Based on its apparent breed, coat type, and condition, recommend specific grooming services from a luxury pet salon. Format the response elegantly with headings and bullet points. Be glamorous and inspiring.";
     
-    const response = await genAI.models.generateContent({
-      model: 'gemini-1.5-flash',
-      contents: [{ parts: [textPart, imagePart] }],
-    });
+    const response = await model.generateContent([textPart, imagePart]);
     
-    return response.text;
+    return response.response.text();
   } catch (error) {
     console.error('Gemini API Error:', error);
-    throw new Error('Failed to get AI recommendations. Please check your API key and try again.');
+    // Return a professional fallback response
+    return "**LAVARE Grooming Recommendations** 🐾\n\n*Our AI stylist is temporarily unavailable, but our expert groomers recommend:*\n\n• **The Signature LAVARE Experience** - Customized grooming based on your pet's unique needs\n• **Breed-Specific Styling** - Professional cuts that enhance your pet's natural features\n• **Luxurious Spa Treatment** - Relaxing bath with premium products\n• **Finishing Touches** - Nail care, ear cleaning, and cologne spritz\n\n*Visit us for a personalized consultation!*";
   }
 };
 
 export const getRecommendationsFromProfile = async (breed: string, age: string, coatType: string): Promise<string> => {
   if (!genAI) {
-    return new Promise(resolve => setTimeout(() => resolve(`This is a mock response for a ${breed}.\n\n**Recommendations based on profile:**\n* A service suitable for a ${coatType} coat.\n* An age-appropriate treatment for a pet that is ${age}.`), 1000));
+    return new Promise(resolve => setTimeout(() => resolve(`**LAVARE Recommendations for ${breed}** 🐾\n\n*Based on breed characteristics and ${coatType} coat:*\n\n• **Breed-Specific Cut** - Professional styling for ${breed} features\n• **${coatType} Coat Care** - Specialized treatment for optimal health\n• **Age-Appropriate Service** - Gentle care suitable for ${age} pets\n• **LAVARE Luxury Package** - Complete spa experience`), 1000));
   }
 
   try {
-    const textPart = { text: `Analyze this pet profile: The breed is ${breed}, age is ${age}, and coat type is ${coatType}. Based on this information, recommend specific grooming services from a luxury pet salon. Format the response elegantly with headings and bullet points. Be glamorous and inspiring.` };
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const textPart = `Analyze this pet profile: The breed is ${breed}, age is ${age}, and coat type is ${coatType}. Based on this information, recommend specific grooming services from a luxury pet salon. Format the response elegantly with headings and bullet points. Be glamorous and inspiring.`;
     
-    const response = await genAI.models.generateContent({
-      model: 'gemini-1.5-flash',
-      contents: [{ parts: [textPart] }],
-    });
+    const response = await model.generateContent([textPart]);
 
-    return response.text;
+    return response.response.text();
   } catch (error) {
     console.error('Gemini API Error:', error);
-    throw new Error('Failed to get AI recommendations. Please check your API key and try again.');
+    // Return a professional fallback response
+    return `**LAVARE Recommendations for ${breed}** 🐾\n\n*Tailored for ${age} pets with ${coatType} coats:*\n\n• **The ${breed} Signature Style** - Breed-specific grooming that highlights natural beauty\n• **${coatType} Coat Conditioning** - Specialized care for optimal coat health\n• **Age-Conscious Care** - Gentle techniques perfect for ${age} companions\n• **LAVARE Premium Experience** - Complete luxury grooming package\n\n*Book a consultation for personalized service!*`;
   }
 };
 

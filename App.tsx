@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { Page } from './types';
 import Login from './components/Login';
@@ -7,7 +7,9 @@ import Dashboard from './components/Dashboard';
 import Booking from './components/Booking';
 import Boutique from './components/Boutique';
 import AIVision from './components/AIVision';
+import AuthCallback from './components/AuthCallback';
 import { LAVARE_MEANING } from './constants';
+import { GoogleUser } from './services/authService';
 
 const AboutLavareModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   return (
@@ -63,11 +65,64 @@ const App: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentPage, setCurrentPage] = useState<Page>(Page.Dashboard);
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
+  const [user, setUser] = useState<GoogleUser | null>(null);
+  const [authError, setAuthError] = useState<string | null>(null);
+
+  // Check if we're on the OAuth callback route
+  const isAuthCallback = window.location.pathname === '/auth/callback';
 
   const handleLogin = useCallback(() => setIsLoggedIn(true), []);
-  const handleLogout = useCallback(() => setIsLoggedIn(false), []);
+  const handleLogout = useCallback(() => {
+    setIsLoggedIn(false);
+    setUser(null);
+    // Redirect to home after logout
+    window.history.pushState({}, '', '/');
+  }, []);
   const handleNavigate = useCallback((page: Page) => setCurrentPage(page), []);
   const toggleAboutModal = useCallback(() => setIsAboutModalOpen(prev => !prev), []);
+
+  const handleAuthSuccess = useCallback((userData: GoogleUser) => {
+    setUser(userData);
+    setIsLoggedIn(true);
+    setAuthError(null);
+    // Redirect to dashboard after successful auth
+    window.history.pushState({}, '', '/');
+  }, []);
+
+  const handleAuthError = useCallback((error: string) => {
+    setAuthError(error);
+    setIsLoggedIn(false);
+    setUser(null);
+    // Redirect to login page on error
+    setTimeout(() => {
+      window.history.pushState({}, '', '/');
+      setAuthError(null);
+    }, 3000);
+  }, []);
+
+  // Handle OAuth callback
+  if (isAuthCallback) {
+    return (
+      <AuthCallback 
+        onAuthSuccess={handleAuthSuccess}
+        onAuthError={handleAuthError}
+      />
+    );
+  }
+
+  // Show auth error if present
+  if (authError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#FDF8F0]">
+        <div className="text-center p-8 bg-white rounded-lg shadow-lg max-w-md">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <h2 className="font-display text-2xl text-[#333333] mb-2">Authentication Error</h2>
+          <p className="text-gray-600 mb-4">{authError}</p>
+          <p className="text-sm text-gray-500">Redirecting to login...</p>
+        </div>
+      </div>
+    );
+  }
 
   const renderCurrentPage = () => {
     switch (currentPage) {
