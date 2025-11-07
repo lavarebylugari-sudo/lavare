@@ -1,6 +1,6 @@
 import { GoogleGenAI, Modality } from "@google/genai";
 
-const API_KEY = process.env.API_KEY;
+const API_KEY = process.env.API_KEY || process.env.GEMINI_API_KEY;
 
 if (!API_KEY) {
   // This is a fallback for development and should not appear in production.
@@ -29,8 +29,8 @@ export const getGroomingRecommendations = async (imageBase64: string): Promise<s
   const textPart = { text: "Analyze this image of a pet. Based on its apparent breed, coat type, and condition, recommend specific grooming services from a luxury pet salon. Format the response elegantly with headings and bullet points. Be glamorous and inspiring." };
   
   const response = await ai.models.generateContent({
-    model: 'gemini-2.5-pro',
-    contents: { parts: [imagePart, textPart] },
+    model: 'gemini-1.5-flash',
+    contents: [{ parts: [textPart, imagePart] }],
   });
 
   return response.text;
@@ -44,8 +44,8 @@ export const getRecommendationsFromProfile = async (breed: string, age: string, 
   const textPart = { text: `Analyze this pet profile: The breed is ${breed}, age is ${age}, and coat type is ${coatType}. Based on this information, recommend specific grooming services from a luxury pet salon. Format the response elegantly with headings and bullet points. Be glamorous and inspiring.` };
   
   const response = await ai.models.generateContent({
-    model: 'gemini-2.5-pro',
-    contents: { parts: [textPart] },
+    model: 'gemini-1.5-flash',
+    contents: [{ parts: [textPart] }],
   });
 
   return response.text;
@@ -61,8 +61,8 @@ export const transformPetImage = async (imageBase64: string, prompt: string): Pr
   const textPart = { text: `Transform the pet in this image based on the following instruction: "${prompt}". The output should be a photorealistic image of the pet with the described style.` };
 
   const response = await ai.models.generateContent({
-    model: 'gemini-2.5-flash-image',
-    contents: { parts: [imagePart, textPart] },
+    model: 'gemini-1.5-flash',
+    contents: [{ parts: [imagePart, textPart] }],
     config: {
         responseModalities: [Modality.IMAGE],
     },
